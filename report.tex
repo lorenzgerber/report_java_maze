@@ -79,10 +79,45 @@ competition against each other. The maze shall be provided as text
 file in the command line arguments. 
 
 \section{Usage Instructions}
+Find below the command line instruction to compile and run the
+program. 
+\begin{verbatim}
+javac JavaApp.java
+java JavaApp maze1.txt
+\end{verbatim}
 
+A typical output of running the program from the command line looks as
+follows:
+\begin{verbatim}
+Right Hand Rule Robot has reached goal in 26 moves
+Memory Robot has reached goal in 59 moves
+The Right Hand Rule Robot wins
+\end{verbatim}
 
 \section{System Description}
-\subsection{UML class diagram}
+
+
+
+\subsection{UML class diagram for the Maze project}
+For the UML class diagram \ref{fig:UML} few changes were needed from
+the one given in the assignment \cite{maze}. In the \textit{Maze}
+class diagram, the private properties \textit{rows} and
+\textit{columns} were added. To emphasize that the \textit{toString()}
+method was adapted/overridden for the class \textit{Maze} it was also 
+shown in the class diagram. This was also true for the
+\textit{Position} class. For validity checking of \textit{mazeData} a
+private method \textit{hasGoalPosition} was further added. The
+\textit{Position} class diagram is identical with the one in the
+assignment so is the one from \textit{Robot} class. The
+\textit{MemoryRobot} has two additional properties \textit{backtrack}
+and \textit{positionHistor}, a stack and a hash map respectively. The
+\textit{RightHandRuleRobot} has an additional property
+\textit{direction} which is further described in the algorithm part.
+The \textit{RightHandRuleRobot} has a number of additional private
+methods that are used for translating between the robots direction and
+the geographical directions north, east, south and west
+\textit{moveDirection}, \textit{wallDirection} and \textit{movableDirection}. 
+
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{maze.png}
@@ -91,7 +126,89 @@ file in the command line arguments.
 \end{figure}
 
 \subsection{Class Responsibilty and Collaborations}
+Class responsibilty and collaboration (CRC) charts are for the main
+classes are shown in table \ref{tab:crcmaze}, \ref{tab:crcposi} and
+\ref{tab:crcrobot}. They are however in the opinion of the author not
+very helpfull as they are not a result of the design process. As such
+they are a bit artificial, modelled after the finished program. I
+don't see much of a use in this `reverse engineering'. Please enlight
+me if you have a convincing argument on this.
+
+\begin{table}[]
+\centering
+\caption{\textit{`Class Responsibility and Collaborator' table for the
+    class `Maze'}}
+\label{tab:crcmaze}
+\begin{tabular}{l|l}
+Class: Maze                    &                        \\ \hline
+\textbf{Responsibilities}      & \textbf{Collaborators} \\
+contains the data for the maze & Position               \\
+                               & Robot                  \\
+can find the start position    &                        \\
+can identify 'free' position   &                        \\
+can identify 'goal' position   &                        \\
+                               &                        \\
+                               &                       
+\end{tabular}
+\end{table}
+
+\begin{table}[]
+\centering
+\caption{\textit{`Class Responsibility and Collaborator' table for
+    class `Position'}}
+\label{tab:crcposi}
+\begin{tabular}{l|l}
+Class: Position                                       &
+\\ \hline
+\textbf{Responsibilities}                             &
+\textbf{Collaborators} \\
+knows x/y coordinates                                 & Maze
+\\
+                                                      & Robot
+                                                      \\
+can inform about it's X/Y coordinates                 &
+\\
+can give the neighbouring coordinates                 &
+\\
+can compare for equality with another Position        &
+\\
+can produce an identifier unique for it's coordinates &                       
+\end{tabular}
+\end{table}
+
+\begin{table}[]
+\centering
+\caption{\textit{`Class Responsibilty and Collaborators' table for Class `Robot'}}
+\label{tab:crcrobot}
+\begin{tabular}{l|l}
+Class: Robot                          &                        \\
+\hline
+\textbf{Responsibilities}             & \textbf{Collaborators} \\
+knows his position in the labyrinth   & Maze                   \\
+                                      & Position               \\
+can move to another position          &                        \\
+can inform about his current position &                        \\
+can find out if he reached the goal   &                        \\
+                                      &                       
+\end{tabular}
+\end{table}
+
+
+
 \subsection{Specific Implementation details}
+The two most non-trivial problem solution details were somehow related
+to the robot moving algorithms and are as such described later. 
+
+Implementation of the data import did not feel very intuitive the way
+it was implemented now. However, this was partly given by the
+assignment specifications which demanded the constructor of
+\textit{Maze} to take in a \textit{java.io.Reader} object. As such,
+the file handling has to be put in the main class. This is maybe
+the way it has to be done, but it just didn't felt so generic. I would
+have prefered to either directly read the file, or alternatively take
+in a String. Now it's something in between and as user I would feel
+confused as where to look for information about valid in data. 
+
 
 \subsection{Move Algorithms of the Robots}
 \subsubsection{Right Hand Rule Robot}
