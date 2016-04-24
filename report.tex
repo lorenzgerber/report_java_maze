@@ -56,205 +56,146 @@
 \maketitle
 \thispagestyle{empty}
 \newpage
-%\tableofcontents
-%\thispagestyle{empty}
-%\newpage
+\tableofcontents
+\thispagestyle{empty}
+\newpage
 
 \clearpage
 \pagenumbering{arabic}
 
-\section{Introduction} 
-Aim of this laboration was to implement 
+\section{Problem Description} 
+Aim of this laboration was to implement a number of class that allow
+to simulate robots in a labyrinth. The assignment suggested three base
+classes \textit{Maze}, \textit{Position} and \textit{Robot}
+\cite{maze}. Further, it was defined that two specializations of the
+\textit{Robot} class had to be implemented: One robot that always
+follows with his `right hand' along the wall until he finds the
+goal of the maze. And another one that can remember positions where he has
+been and hence look for new unexplored positions until he finds the exit.
 
+The classes were to be tested in a \textit{main} program. More
+specific, the two specialized robot classes should be evaluated in a
+competition against each other. The maze shall be provided as text
+file in the command line arguments. 
 
 \section{Usage Instructions}
-The files provided in an zip archieve: \textit{ClockApp.java,
-  Clock.java, ClockTest.java, NumberDisplay.java,
-  NumberDisplayTest.java, Alarm.java, AlarmTest.java}. To build from
-the command line, \textit{javac ClockApp.java} is invoked. To run the
-program \textit{java ClockApp}. The main program \textit{ClockApp}
-does not take any input. On execution it writes output to the
-screen. The implications of the printout will be described further in
-the section \textit{testing}. 
+
 
 \section{System Description}
-First Class Responsibility Collaborators \textit{CRC} Tables were
-drawn for all classes (\textit{Table \ref{tab:crcclock},
-\ref{tab:crcnumberdisplay}, \ref{tab:crcalarm}}). The specification
-did not demand an actual running clock, just a model that would have
-all the functionality. Hence the advancement of the time had to be
-done manually in the main program.
+\subsection{UML class diagram}
+\subsection{Class Responsibilty and Collaborations}
+\subsection{Specific Implementation details}
 
-The UML class diagrams shown here are basically the same as those
-given in the assignment (\textit{Figure \ref{fig:umlclass}}). However,
-the \textit{Alarm} class was added. The \textit{Clock} aggregates two
-\textit{NumberDisplays}. The \textit{Alarm} inherits this from the
-\textit{Clock} but aggregates two additional \textit{NumberDisplays}
-to keep track of the alarm time. This could also have been solved as
-primitive datatype properties in the \textit{Alarm} class. Here it was
-however decided to reuse the components, and keep it flexible if
-further functionality should be implemented later on.
+\subsection{Move Algorithms of the Robots}
+\subsubsection{Right Hand Rule Robot}
+The right hand rule robot needed a number of help methods besides the
+specified \textit{move()} method. This was mainly a consequence for
+giving the robot a memory for the direction of movement. This was seen
+as a measure to model the behaviour of the robot as close as possible
+how a physical implementation would work: If a robot has a
+\textit{right hand}, it also has a direction and all operations should
+relate to the direction of the robot. The private methods
+\textit{moveDirection()}, \textit{wallDirection} and
+\textit{movableDirection} are used to lookup geographic directions
+from robot directions. The actual translation is done in the
+\textit{move()} method using addition and subtraction followed by a
+modulo operator on a direction value that is initialized by the
+\textit{setInitialDirection()} method.
 
+\textit{Try...catch} statements are used to handle
+\textit{ArrayIndexOutOfBounds} exceptions when the robot is at the
+edge of the maze. The edge is interpreted as a wall. 
 
+\subsubsection{Memory Robot}
+The memory robot needs just the specified \textit{move()} method. It
+uses a \textit{stack} (\textit{java.util.Stack}) for
+implementing the back tracking and a hash table
+(\textit{java.util.HashMap}) for the memory of already visited
+places. For this work, the \textit{hashCode()} method of the
+\textit{Position} Class had to be implemented with an override. It was
+chosen to concatenate the X and Y position with an arbitrary
+unlikely-to-appear number (`9999' was chosen here).  
 
-\begin{table}[!h]
-\centering
-\caption{\textit{`Class Responsibility Collaborators' tables for Clock}}
-\label{tab:crcclock}
-\begin{tabular}{l|l}
-Class: Clock              &                        \\ \hline
-\textbf{Responsibilities} & \textbf{Collaborators} \\
-knows hours               & NumberDisplay          \\
-knows minutes             &                        \\
-                          &                        \\
-show time                 &                        \\
-set time                  &                        \\
-advance minutes           &                       
-\end{tabular}
-\end{table}
-
-\begin{table}[h]
-\centering
-\caption{\textit{`Class Responsibility Collaborators' tables for NumberDisplay}}
-\label{tab:crcnumberdisplay}
-\begin{tabular}{l|l}
-Class: Number Display     &                        \\ \hline
-\textbf{Responsibilities} & \textbf{Collaborators} \\
-knows minLimit            & Clock                  \\
-knows maxLimit            &                        \\
-knows current value       &                        \\
-                          &                        \\
-show value                &                        \\
-advance value             &                        \\
-check if wrapped around   &                       
-\end{tabular}
-\end{table}
-
-\begin{table}[h]
-\centering
-\caption{\textit{`Class Responsibility Collaborators' tables for
-    Alarm.}}
-\label{tab:crcalarm}
-\begin{tabular}{l|l}
-Class: Alarm - extends Clock &                        \\ \hline
-\textbf{Responsibilities} & \textbf{Collaborators} \\
-knows alarm hours         & NumberDisplay          \\
-knows alarm minutes       &                        \\
-know if it is alarm       &                        \\
-                          &                        \\
-set alarm                 &                        \\
-switch on / off alarm     &                        \\
-alarm!                    &                       
-\end{tabular}
-\end{table}
-
-\begin{figure}
-  \centering
-  \begin{tikzpicture}
-    \begin{class}[text width = 5.5cm]{Clock}{0,0}
-      \attribute{- hours : NumberDisplay}
-      \attribute{- minutes : NumberDisplay}
-      \attribute{- displayString : String}
-
-      \operation{+ getHours() : int}
-      \operation{+ getMinutes() : int}
-      \operation{+ timeTick() : void}
-      \operation{+ setTime(int, int) : void} 
-      \operation{+ getTime() : String}
-      \operation{- updateDisplay() : void}
-    \end{class}
-    
-    \begin{class}[text width = 5.5cm]{Alarm}{5,-8}
-      \inherit{Clock}
-
-      \attribute{- alarmHours : NumberDisplay}
-      \attribute{- alarmMinutes : NumberDisplay}
-      \attribute{- alarmStatus : Boolean}
-
-      \operation{+ Alarm() : void}
-      \operation{+ Alarm(int, int) : void}
-      \operation{+ Alarm(int, int, int, int) : void}
-      \operation{+ alarmSet(int, int) : void}
-      \operation{+ alarmOn() : void}
-      \operation{+ alarmOff() : void}
-      \operation{- checkAlarm() : boolean}
-      \operation{+ timeTick() : void}
-    \end{class}
+The \textit{move()} method of the memory robot can be roughly
+separated in two parts. In the first part, the robot checks in every
+four directions the possibility to move based on the condition
+\textit{isMovable} from the \textit{Position} class and whether the
+\textit{hashCode} of the potential new position is already stored in
+the \textit{positionHistory} hash map. In the current version, a fixed
+sequence of direction is implemented (North, East, South, West). As
+soon as a viable directin is found, the robot makes the move. This
+includes pushing the current position on the \textit{backtrack} stack,
+storing the hash code of the current position to the
+\textit{positionHistory} hash map and finally, changing location to
+the new position. After making the move, the method is left with a
+return statement without reaching the second part. Each of the
+direction checking code blocks is enclosed in a \textit{try...catch}
+statement that handles the \textit{ArrayIndexOutOfBounds} exception
+when the robot is at the edge of the maze. Hence positions `beyond'
+the maze are interpreted as wall.
 
 
-    \begin{class}[text width = 5.5cm]{NumberDisplay}{-5, -8}
-      \attribute{- minLimit : int}
-      \attribute{- maxLimit : int}
-      \attribute{- value : int}
-
-      \operation{+ getValue() : int}
-      \operation{+ setValue(int) : void}
-      \operation{+ getDisplayValue() : String}
-      \operation{+ increment() : void}
-      \operation{+ didWrapAround() : boolean}
-    \end{class}
-    \aggregation{Clock}{NumberDisplay}{2}{NumberDisplay}
-    \aggregation{Alarm}{NumberDisplay}{2}{NumberDisplay}
-  \end{tikzpicture}
-  \caption{\textit{Class diagrams of Clock and NumberDisplay.}}
-  \label{fig:umlclass}  
-\end{figure}
+The second part of the \textit{move()} method in the memory robot is
+concerned with the backtracking. It consists just of reading the stack
+for the last position, and then popping the top of the stack. As
+mentioned above, this second part is just reached when no direction
+offered a viable move. 
 
 
 
+\section{Known Limits}
+The robots are implemented such that they accept the border of the
+maze as a wall. Hence a valid maze without any wall can be created.
 
-\subsection{Checking for wrap around}
-In the specifications it was given that \textit{didWrapAround} is a
-method. There are different ways how this check can be
-implemented. The most simplistic is to check whether minutes is 0 and
-deduce from it that it wrapped around on the last
-\textit{minutes.increment}. Another way would be to add a boolean
-property variable that can be set to true when actual wrapping
-happens.
+In the current version, the \textit{Memory Robot} will not detect when
+there is no solution to the maze. This could be implemented by
+checking for the start position after back tracking.
 
-\subsection{Checking for Alarm condition}
-In the specifications it was given that the check for alarm should
-happen in the \textit{timeTick} method. Hence, setting time or alarm
-to the same time will not produce an alarm event as the alarm
-condition will be checked after the \textit{minutes.increment} in the
-\textit{timeTick} method. Implementing the feature to check for alarm
-condition after both setting time or alarm time can be implemented in
-many ways. The determining factor is that alarm check happens in the
-\textit{timeTick} method. Hence one way could be to decrease the
-minutes counter one minute and then call for the \textit{timeTick}
-method that would also check for alarm condition in the actual set
-time. However, this implementation creates a complicated edge case for
-the value 0. When setting time to 0, it will be decreased to -1 to
-advance then to 1. This will however detect wrap around condition and
-advance the hour by one. Hence, to implement this feature, it could
-make sense to store wrap around condition when it actually happens in
-a seaparate boolean property. 
-
- 
 \section{Testing}
-Testing was conducted in the main program. Additionally, JUnit4 test
-files were written and tested. The JUnit test cases check wheter the
-constructors works and for the \textit{IllegalArgumentException}. More
-detailed logical testing was done in the main program which 
-included nine usecases which were all run on the \textit{Alarm}
-class. For the sake of simplicity, now logic was built in to check for
-passed or not passed. However, after reading the specification of the
-classes, the expected result should be obvious.
+\subsection{JUnit tests}
+As requested, JUnit tests were implemented for the classes
+\textit{Maze} and \textit{Position}. The test were implemented post
+development of the main code.
 
-First a new object was instantiated. Then the default time of the
-clock modul is written to screen. Next, alarm time is set to clock
-time. Due to the specific implementation of the program, no alarm is
-expected. The opposite case is tested next where the clock is set to
-an activated alarm time. Also here, due to the specific
-implementation, no alarm event happens. Then incrementing the time
-through a full cycle with activated alarm should create an alarm
-event. Next, the same situation is tested with alarm deactivated.
-Exception handling for out of range input was implemented in all
-classes. Here exception handling for such a case is tested next.
-Finally, two edge cases are tested. First incrementing from time 00:00
-to 00:01 and then from 23:59 to 00:00. 
+\subsubsection{Maze}
+The JUnit test for maze verify whether a correct Maze can be
+loaded. Then each a test to check for exceptions when a maze without
+start or goal position, or a maze with uneven row length is attempted
+to load. 
 
+\subsubsection{Position}
+JUnit tests to check whether a \textit{Position} object can be
+instantiated and to verify that the \textit{equals()} method works
+were implemented. Further, it is checked whether different positions
+yield different hash codes. 
 
+\subsection{Run tests and Robot tests}
+The robot testing was implemented in a small main program. A static
+variable \textit{ROUNDS} determine how many rounds the competition
+shall last. This mode was decided as it would be more difficult to
+detect adhoc whether a maze can be 'solved' in general or by a
+specific robot particularly. So, limiting to a fixed number of rounds
+was a mean to prevent infinite looping. A typical situation where
+an infinite loop could occur is when a robot starts within a
+compartment that has no connection to the compartment with the
+\textit{Goal} position.
+
+Move counters for each robot are used. In each round, it is first
+checked whether either of the robots has reached the
+\textit{Goal}. Then the move counter is advanced by one and the the
+\textit{move()} method of each robot is called.  After the predefined
+number of rounds are over, it is evaluate whether the robots reached
+the goal and if so, which one reached it first.
+
+For testing purposes, \textit{toString()} methods for
+\textit{Position} and \textit{Maze} were implemented. They were used
+during development to verify the correctness of the algorithms. 
+
+The text files \textit{maze1.txt} and \textit{maze2.txt} work with
+both robots, while \textit{maze3.txt} results in an exception for the
+right hand rule robot as the starting position is not at a wall. The
+other provided maze text files are used for the JUnit testing and
+produce exceptions. 
 
 \addcontentsline{toc}{section}{\refname}
 \bibliography{references}
