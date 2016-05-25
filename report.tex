@@ -94,9 +94,17 @@ Memory Robot has reached goal in 59 moves
 The Right Hand Rule Robot wins
 \end{verbatim}
 
+\subsection{Format of the Labyrinth}
+The environment in which the robots are supposed to exist has to be
+provided in a text file. In accordance with the description in the lab
+assignment, walls of the labyrinth are marked with `asterisk' (UTF-8 0x2A)
+characters. Further there has to be exactly one `S' (UTF-8 0x53) as
+start point and at least one `G' (UTF-8 0x47) as goal/exit. Further,
+newline characters (UTF-8 0x0A). Hence the textfile is provided as a
+visual representation. In the current implementation, each row has to
+have the same length. 
+
 \section{System Description}
-
-
 
 \subsection{UML class diagram for the Maze project}
 For the UML class diagram \ref{fig:UML} few changes were needed from
